@@ -1,0 +1,238 @@
+#include <iostream>
+#include "Queuer.h"
+using namespace std;
+
+
+
+
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+
+    Queuer* queuer = new Queuer();
+    int komanda;
+    queuer->Nachalo = -1;
+    queuer->Konec = 0;
+    do
+    {
+        cout << "\nДоступные функции: \n";
+        cout << "1 - Созание очереди \n";
+        cout << "2 - Добавление элемента \n";
+        cout << "3 - Извлечение элемента \n";
+        cout << "4 - Удаление очереди \n";
+        cout << "0 - Завершение работы программы \n";
+        cin >> komanda;
+
+        switch (komanda)
+        {
+            case 1:
+            {
+                cout << "Введите длину очереди: ";
+                int kolicjestvoElementov;
+                cin >> kolicjestvoElementov;
+                queuer->RingBuffer = new int[kolicjestvoElementov * 2];
+                queuer->Capacity = kolicjestvoElementov * 2;
+                for (int i = 0; i < kolicjestvoElementov; i++)
+                {
+                    cout << "Введите элемент: ";
+                    int element;
+                    cin >> element;
+                    queuer->RingBuffer[i] = element;
+                    queuer->Nachalo = queuer->Nachalo + 1;
+                }
+                break;
+            }
+                
+                
+            case 2:
+            {
+
+
+                DobavlenieElementa(*queuer);
+
+
+                break;
+            }
+            case 3:
+            {
+                int value;
+                value = IzvlechenieeElementa(*queuer);
+                cout << "Элемент: " << value << "\n";
+
+                break;
+            }
+            case 4:
+            {
+                delete queuer->RingBuffer;
+                queuer->Nachalo = -1;
+                queuer->Konec = 0;
+
+                break;
+            }
+        }
+    } while (komanda != 0);
+
+    delete queuer->RingBuffer;
+    delete queuer;
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+Queuer.h
+____________________________________________________
+
+#pragma once
+
+/// <summary>
+/// Эта структура содержит указатель на очередь,
+/// ёмкость, указатели на конечный и начальный элементы
+/// </summary>
+struct Queuer
+{
+    //TODO: queue? 
+    /// <summary>
+    /// Кольцевой буфер
+    /// </summary>
+    int* RingBuffer;
+    /// <summary>
+    /// Ёмкость
+    /// </summary>
+    int Capacity;
+    /// <summary>
+    /// Начало
+    /// </summary>
+    int Nachalo;
+    /// <summary>
+    /// Конец
+    /// </summary>
+    int Konec;
+};
+
+
+/// <summary>
+/// Эта программа добавляет элемент
+/// </summary>
+/// <param name="Queuer">Принятая очередь</param>
+void DobavlenieElementa(Queuer& queuer);
+
+/// <summary>
+/// Эта программа извлекает элемент
+/// </summary>
+/// <param name="Queuer">Принятая очередь</param>
+/// <returns>Извлекаемый элемент</returns>
+int IzvlechenieeElementa(Queuer& queuer);
+
+/// <summary>
+/// Эта программа задаёт очереди новый размер
+/// </summary>
+/// <param name="Queuer">Принятая очередь</param>
+/// <param name="razmer">Новый размер</param>
+void NewBufferSize(Queuer& queuer, int razmer);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Queuer.cpp
+___________________________________________
+#include <iostream>
+#include "Queuer.h"
+using namespace std;
+
+
+void DobavlenieElementa(Queuer& queuer)
+{
+    cout << "Введите элемент: \n";
+    int element;
+    cin >> element;
+
+    queuer.Nachalo = queuer.Nachalo + 1;
+    if (queuer.Nachalo == queuer.Capacity)
+    {
+        queuer.Nachalo = 0;
+    }
+
+
+    if (queuer.Nachalo == queuer.Konec)
+    {
+        int razmerOne = queuer.Capacity * 2;
+        NewBufferSize(queuer, razmerOne);
+    }
+    queuer.RingBuffer[queuer.Nachalo] = element;
+
+}
+
+
+int IzvlechenieeElementa(Queuer& queuer)
+{
+    int value;
+    value = queuer.RingBuffer[queuer.Konec];
+    queuer.Konec = queuer.Konec + 1;
+    if (queuer.Konec > queuer.Capacity)
+    {
+        queuer.Konec = 0;
+    }
+    return value;
+}
+
+void NewBufferSize(Queuer& queuer, int razmer)
+{
+
+    int j = 0;
+    if (queuer.Nachalo < queuer.Konec)
+    {
+        int* temporaryQueuerOne = new int[queuer.Capacity];
+        for (int i = queuer.Konec; i < queuer.Capacity; i++)
+        {
+            temporaryQueuerOne[j] = queuer.RingBuffer[i];
+            j = j + 1;
+        }
+        for (int i = 0; i < queuer.Nachalo + 1; i++)
+        {
+            temporaryQueuerOne[j] = queuer.RingBuffer[i];
+            j = j + 1;
+        }
+        delete[] queuer.RingBuffer;
+        queuer.RingBuffer = temporaryQueuerOne;
+    }
+    queuer.Konec = 0;
+    queuer.Nachalo = j - 1;
+
+    int* temporaryQueuer = new int[razmer];
+    for (int i = 0; i < razmer; i++)
+    {
+        temporaryQueuer[i] = queuer.RingBuffer[i];
+    }
+    delete[] queuer.RingBuffer;
+    queuer.RingBuffer = temporaryQueuer;
+    queuer.Capacity = razmer;
+
+}
+

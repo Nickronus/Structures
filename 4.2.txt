@@ -1,0 +1,279 @@
+#include <iostream>
+#include "Ringbuffer.h"
+using namespace std;
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+
+    
+    RingBuffer* ringBufferOne = new RingBuffer();
+
+    int komanda;
+
+    cout << "Ввод длины буфера: \n";
+    int capacity;
+    cin >> capacity;
+    ringBufferOne->RingBuffer = new int[capacity];
+    ringBufferOne->Capacity = capacity;
+   
+    ringBufferOne->Nachalo = -1;
+    ringBufferOne->Konec = 0;
+
+    do
+    {
+        cout << "\nДоступные функции: \n";
+        cout << "1 - Функция добавления элемента в буфер \n";
+        cout << "2 - Функция извлечения элемента из буфера \n";
+        cout << "3 - Функция возвращения свободного места \n";
+        cout << "4 - Функция возвращения занятого места \n";
+        cout << "5 - Изменение размера буфера \n";
+        cout << "0 - Завершение работы программы \n";
+        cin >> komanda;
+
+        switch (komanda)
+        {
+            case 1:
+            {
+                int counterIzmeneniy = 0;
+                cout << "Введите элемент: \n";
+                int element;
+                cin >> element;
+
+                //TODO: ВЫнести в отдельную функцию?
+                ringBufferOne->Nachalo = ringBufferOne->Nachalo + 1;
+                if (ringBufferOne->Nachalo == ringBufferOne->Capacity)
+                {
+                    ringBufferOne->Nachalo = 0;
+                }
+                DobavlenieElementa(*ringBufferOne, element);
+                counterIzmeneniy = counterIzmeneniy + 1;
+                if (counterIzmeneniy >= ringBufferOne->Capacity)
+                {
+                    if (ringBufferOne->Nachalo == ringBufferOne->Konec)
+                    {
+                        ringBufferOne->Konec = ringBufferOne->Konec + 1;
+                        if (ringBufferOne->Konec > ringBufferOne->Capacity)
+                        {
+                            ringBufferOne->Konec = 0;
+                        }
+                    }
+                }
+                break;
+            }
+            case 2:
+            {
+
+
+                int value = IzvlechenieeElementa(*ringBufferOne);
+                cout << "Элемент: " << value << "\n";
+
+                break;
+            }
+            case 3:
+            {
+
+
+                int valueOne = SvobodnoeMesto(*ringBufferOne);
+                cout << "Свободного места на " << valueOne << " элементов.";
+
+                break;
+            }
+            case 4:
+            {
+
+
+                int valueTwo = ringBufferOne->Capacity - SvobodnoeMesto(*ringBufferOne);
+                cout << "Занято " << valueTwo << " элементов.";
+
+                break;
+            }
+
+            case 5:
+            {
+                cout << "Введите размер буфера: \n";
+                int element;
+                cin >> element;
+
+                NewBufferSize(*ringBufferOne, element);
+
+                break;
+            }
+
+
+        }
+    } while (komanda != 0);
+
+    delete ringBufferOne->RingBuffer;
+    delete ringBufferOne;
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Ringbuffer.h
+__________________________________________________________
+#pragma once
+
+
+/// <summary>
+/// Структура содержит указатель на кольцевой буфер, его ёмкость, 
+/// начальный и конечный номер ячейки.
+/// </summary>
+struct RingBuffer
+{
+    /// <summary>
+    /// Кольцевой буфер
+    /// </summary>
+    int* RingBuffer;
+
+    /// <summary>
+    /// Ёмкость
+    /// </summary>
+    int Capacity;
+    
+    /// <summary>
+    /// Начало
+    /// </summary>
+    int Nachalo;
+    /// <summary>
+    /// Конец
+    /// </summary>
+    int Konec;
+};
+
+/// <summary>
+/// Эта программа вывода свободного места
+/// </summary>
+/// <param name="ringbuffer">Принятый кольцевой буфер</param>
+/// <returns>Свободное место</returns>
+int SvobodnoeMesto(RingBuffer& ringBuffer);
+/// <summary>
+/// Это программа добавления элемента
+/// </summary>
+/// <param name="Ringbuffer">Принятый кольцевой буфер</param>
+/// <param name="element">Принятый элемент</param>
+void DobavlenieElementa(RingBuffer& ringBuffer, int element);
+/// <summary>
+/// Это программа извлечения элемента
+/// </summary>
+/// <param name="Ringbuffer">Принятый кольцевой буфер</param>
+/// <returns>Извлекаемый элемент</returns>
+int IzvlechenieeElementa(RingBuffer& ringBuffer);
+/// <summary>
+/// Эта программа создания нового размера буфера кольцевого буфера
+/// </summary>
+/// <param name="ringbuffer">Принятый кольцевой буфер</param>
+/// <param name="razmer">Новый размер</param>
+void NewBufferSize(RingBuffer& ringBuffer, int razmer);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Ringbuffer.cpp
+________________________________________________
+#include <iostream>
+#include "Ringbuffer.h"
+using namespace std;
+
+
+void DobavlenieElementa(RingBuffer& ringBuffer, int element)
+{
+    ringBuffer.RingBuffer[ringBuffer.Nachalo] = element;
+
+}
+
+
+int IzvlechenieeElementa(RingBuffer& ringBuffer)
+{
+    int value = ringBuffer.RingBuffer[ringBuffer.Konec];
+    ringBuffer.RingBuffer[ringBuffer.Konec] = 0;
+    ringBuffer.Konec = ringBuffer.Konec + 1;
+    if (ringBuffer.Konec > ringBuffer.Capacity)
+    {
+        ringBuffer.Konec = 0;
+    }
+    return value;
+}
+
+
+int SvobodnoeMesto(RingBuffer& ringBuffer)
+{
+    int value;
+    if (ringBuffer.Nachalo >= ringBuffer.Konec)
+    {
+        value = ringBuffer.Capacity - (ringBuffer.Nachalo - ringBuffer.Konec + 1);
+    }
+    else
+    {
+        value = ringBuffer.Capacity - (ringBuffer.Nachalo + 1) - (ringBuffer.Capacity - ringBuffer.Konec);
+    }
+    return value;
+}
+
+
+void NewBufferSize(RingBuffer& ringBuffer, int razmer)
+{
+    int j = 0;
+    if (ringBuffer.Nachalo < ringBuffer.Konec)
+    {
+        int* temporaryRingBufferOne = new int[ringBuffer.Capacity];
+        for (int i = ringBuffer.Konec; i < ringBuffer.Capacity; i++)
+        {
+            temporaryRingBufferOne[j] = ringBuffer.RingBuffer[i];
+            j = j + 1;
+        }
+        for (int i = 0; i < ringBuffer.Nachalo + 1; i++)
+        {
+            temporaryRingBufferOne[j] = ringBuffer.RingBuffer[i];
+            j = j + 1;
+        }
+        delete[] ringBuffer.RingBuffer;
+        ringBuffer.RingBuffer = temporaryRingBufferOne;
+    }
+    ringBuffer.Konec = 0;
+    ringBuffer.Nachalo = j - 1;
+   
+        int* temporaryRingBuffer = new int[razmer];
+        for (int i = 0; i < razmer; i++)
+        {
+            temporaryRingBuffer[i] = ringBuffer.RingBuffer[i];
+        }
+        delete[] ringBuffer.RingBuffer;
+        ringBuffer.RingBuffer = temporaryRingBuffer;
+        ringBuffer.Capacity = razmer;
+    
+}
+    
+

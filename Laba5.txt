@@ -1,0 +1,632 @@
+#include <iostream>
+#include <string>
+#include "HashTable.h"
+#include "Dictionary.h"
+
+using namespace std;
+
+void ShowDictionary(HashTable* dictionary)
+{
+    cout << "\nСловарь:";
+    for (int i = 0; i < dictionary->BufferSize; i++)
+    {
+        HashTableListNode* temporaryNode = dictionary->HashTable[i].Head;
+        while (temporaryNode != nullptr)
+        {
+            cout << "\nКлюч: " << temporaryNode->Key << " Значение: " << temporaryNode->Value;
+            temporaryNode = temporaryNode->Next;
+        }
+    }
+}
+
+void ShowHashTable(HashTable* hashTable)
+{
+    cout << "\nХеш-таблица:";
+    for (int i = 0; i < hashTable->BufferSize; i++)
+    {
+        HashTableListNode* temporaryNode = hashTable->HashTable[i].Head;
+        if (temporaryNode == nullptr)
+        {
+            cout << "\nКлюч: **** Значение: ****";
+        }
+        else
+        {
+            cout << "\n";
+            while (temporaryNode != nullptr)
+            {
+                cout << "Ключ: " << temporaryNode->Key << " Значение: " << temporaryNode->Value<<"  ";
+                temporaryNode = temporaryNode->Next;
+            }
+        }
+
+    }
+}
+
+string InputKey()
+{
+    cout << "Введите ключ: ";
+    string key;
+    cin >> key;
+    return key;
+}
+
+string InputValue()
+{
+    cout << "Введите значение: ";
+    string value;
+    cin >> value;
+    return value;
+}
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+
+    HashTable* hashTable = new HashTable();
+    hashTable->HashTable = new HashTableList[hashTable->BaseCapacity];
+
+    Dictionary* dictionary = new Dictionary();
+    dictionary->Dictionary = new HashTable();
+    dictionary->Dictionary->HashTable = new HashTableList[hashTable->BaseCapacity];
+
+    int comanda;
+    do
+    {
+
+        cout << "\n\n\nДоступные комманды:\nХеш-таблица:\n1 - Добавление элемента";
+        cout << "\n2 - Удаление элемента\n3 - Поиск элемента";
+        cout << "\n\nСловарь:\n4 - Добавление элемента\n5 - Удаление элемента";
+        cout << "\n6 - Поиск элемента\n\n0 - Завершение работы программы";
+        cout << "\n\nВведите номер команды:";
+        cin >> comanda;
+
+
+        switch (comanda)
+        {
+        case 1:
+        {
+            string value = InputValue();
+
+            string key = InputKey();
+
+            cout << "Хеш: " << HashValue(key, dictionary->Dictionary->BufferSize) << "\n";
+
+            AddElement(hashTable, value, key);
+
+            ShowHashTable(hashTable);
+            ShowDictionary(dictionary->Dictionary);
+
+            break;
+        }
+        case 2:
+        {
+            string key = InputKey();
+
+            int report = DeleteElement(hashTable, key);
+            if (report == 0)
+            {
+                cout << "Элемент успешно удалён";
+            }
+            else
+            {
+                cout << "Ошибка";
+            }
+
+
+            ShowHashTable(hashTable);
+            ShowDictionary(dictionary->Dictionary);
+
+            break;
+        }
+        case 3:
+        {
+            string key = InputKey();
+
+            string* element = FindElement(hashTable, key);
+
+            if (element == nullptr)
+            {
+                cout << "Элемент не найден" << "\n";
+            }
+            else
+            {
+                cout << "\nИскомый элемент:" << *element << "\n";
+            }
+
+            ShowHashTable(hashTable);
+            ShowDictionary(dictionary->Dictionary);
+
+            break;
+
+        }
+        case 4:
+        {
+            string value = InputValue();
+
+            string key = InputKey();
+
+            cout << "Хеш: " << HashValue(key, dictionary->Dictionary->BufferSize) << "\n";
+
+            int report = SearchDubles(dictionary->Dictionary,  key, value, HashValue(key, dictionary->Dictionary->BufferSize));
+            if (report == 1)
+            {
+                cout << "Добавление невозможно";
+            }
+            else
+            {
+                AddElement(dictionary->Dictionary, value, key);
+            }
+
+            ShowHashTable(hashTable);
+            ShowDictionary(dictionary->Dictionary);
+
+            break;
+        }
+        case 5:
+        {
+            string key = InputKey();
+
+            int report = DeleteElement(dictionary->Dictionary, key);
+            if (report == 0)
+            {
+                cout << "Элемент успешно удалён";
+            }
+            else
+            {
+                cout << "Ошибка";
+            }
+
+            ShowHashTable(hashTable);
+            ShowDictionary(dictionary->Dictionary);
+            break;
+        }
+        case 6:
+        {
+            string key = InputKey();
+
+            string* element = FindElement(dictionary->Dictionary, key);
+
+            if (element == nullptr)
+            {
+                cout << "Элемент не найден" << "\n";
+            }
+            else
+            {
+                cout << "\nИскомый элемент:" << *element << "\n";
+            }
+
+            ShowHashTable(hashTable);
+            ShowDictionary(dictionary->Dictionary);
+
+            break;
+        }
+        }
+    } while (comanda != 0);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+HashTable.h
+________________________________________________________
+#pragma once
+
+#include <string>
+using namespace std;
+
+/// <summary>
+/// Структура, сожержащая ключ, значение и указатель на следующий элемент
+/// </summary>
+struct HashTableListNode
+{
+	/// <summary>
+	/// Ключ
+	/// </summary>
+	string Key = "";
+	/// <summary>
+	/// Значение
+	/// </summary>
+	string Value = "";
+	/// <summary>
+	/// Указатель на следующий элемент Ключ-Значение
+	/// </summary>
+	HashTableListNode* Next = nullptr;
+};
+
+/// <summary>
+/// Структура, содержащая указатели массива на первые элементы списков
+/// </summary>
+struct HashTableList
+{
+	/// <summary>
+	/// Указатель на начальный элемент строки
+	/// </summary>
+	HashTableListNode* Head = nullptr;
+};
+
+/// <summary>
+/// Структура, содержащая данные хеш-таблицы
+/// </summary>
+struct HashTable
+{
+	/// <summary>
+	/// Базовая длина
+	/// </summary>
+	const int BaseCapacity = 3;
+	/// <summary>
+	/// Указатель на структуру, содержащую начало списка
+	/// </summary>
+	HashTableList* HashTable;
+	/// <summary>
+	/// Количество элементов
+	/// </summary>
+	int NumberOfElements = 0;
+	/// <summary>
+	/// Размер буфера
+	/// </summary>
+	int BufferSize = BaseCapacity;
+	/// <summary>
+	/// Фактор роста
+	/// </summary>
+	const int GrowFactor = 2;
+};
+
+
+
+
+/// <summary>
+/// Хеш-функция
+/// </summary>
+/// <param name="key">ключ элемента</param>
+/// <param name="tableSize">размер таблицы</param>
+int HashValue(string key, int tableSize);
+
+/// <summary>
+/// Функция добавления элемента
+/// </summary>
+/// <param name="hashTable">указатель на хеш-таблицу</param>
+/// <param name="element">добавляемый элемент</param>
+/// <param name="key">добавляемый ключ</param>
+void AddElement(HashTable* hashTable, string element, string key);
+
+/// <summary>
+/// Функция удаления элемента по ключу
+/// </summary>
+/// <param name="hashTable">указатель на хеш-таблицу</param>
+/// <param name="key">ключ удаляемого элемента</param>
+int DeleteElement(HashTable* hashTable, string key);
+
+/// <summary>
+/// Функция поиска элемента по ключу
+/// </summary>
+/// <param name="hashTable">указатель на хеш-таблицу</param>
+/// <param name="key">ключ искомого значения</param>
+string* FindElement(HashTable* hashTable, string key);
+
+/// <summary>
+/// Функция проверки  коллизий.
+/// </summary>
+/// <param name="hashTable">указатель на хеш-таблицу</param>
+/// <param name="element">значение добавляемого элемента</param>
+/// <param name="key">ключ добавляемого элемента</param>
+int CheckCollision(HashTable* hashTable, string key, string element);
+
+/// <summary>
+/// Функция перехеширования.
+/// </summary>
+/// <param name="hashTable">указатель на хеш-таблицу</param>
+void Rehashing(HashTable* hashTable);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Dictionary.h
+_______________________________________________________
+#pragma once
+#include "HashTable.h"
+
+/// <summary>
+/// Структура Словарь
+/// </summary>
+struct Dictionary
+{
+	/// <summary>
+	/// Структура типа Хеш-таблицы
+	/// </summary>
+	HashTable* Dictionary;
+};
+
+/// <summary>
+/// Функция проверки дублей
+/// </summary>
+/// <param name="hashTable">указатель на словарь</param>
+/// <param name="element">добавляемый элемент</param>
+/// <param name="key">добавляемый ключ</param>
+/// <param name="hash">Хеш</param>
+int SearchDubles(HashTable* dictionary, string key, string element, int hash);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+HashTable.cpp
+__________________________________________________________
+#include <string>
+#include "HashTable.h"
+#include "Dictionary.h"
+
+using namespace std;
+
+int HashValue(string key, int size)
+{
+
+	int hash = 0;
+	for (int i = 0; i < key.length(); i++)
+	{
+		hash = (hash * (size - 1) + key[i]) % size;
+	}
+
+	return hash;
+}
+
+void AddElement(HashTable* hashTable, string value, string key)
+{
+	int hash = HashValue(key, hashTable->BufferSize);
+	
+	int collision = CheckCollision(hashTable, key, value);
+	
+	HashTableListNode* newNode = new HashTableListNode();
+	newNode->Key = key;
+	newNode->Value = value;
+
+
+	if (collision == 0)
+	{
+		hashTable->HashTable[hash].Head = newNode;
+
+		hashTable->NumberOfElements = hashTable->NumberOfElements + 1;
+	}
+
+	if (collision == 2)
+	{
+		HashTableListNode* temporaryNode = hashTable->HashTable[hash].Head;
+		while (temporaryNode->Next != nullptr)
+		{
+			temporaryNode = temporaryNode->Next;
+		}
+
+		temporaryNode->Next = newNode;
+
+		hashTable->NumberOfElements = hashTable->NumberOfElements + 1;
+	}
+
+	if (hashTable->NumberOfElements >= hashTable->BufferSize)
+	{
+		Rehashing(hashTable);
+	}
+}
+
+int DeleteElement(HashTable* hashTable, string key)
+{
+	int hash = HashValue(key, hashTable->BufferSize);
+
+	HashTableListNode* temporaryNode = hashTable->HashTable[hash].Head;
+	int counter = 0;
+
+	HashTableListNode* temporaryNodeTwo = temporaryNode;
+
+	while (temporaryNode != nullptr)
+	{
+		if (temporaryNode->Key == key)
+		{
+			if (hashTable->HashTable[hash].Head == temporaryNode)
+			{
+				hashTable->HashTable[hash].Head = temporaryNode->Next;
+				temporaryNodeTwo = temporaryNode;
+				delete temporaryNodeTwo;
+
+				temporaryNode = hashTable->HashTable[hash].Head;
+				counter = counter + 1;
+
+				temporaryNodeTwo = temporaryNode;
+
+				continue;
+			}
+			else
+			{
+				temporaryNodeTwo->Next = temporaryNode->Next;
+				HashTableListNode* temporaryNodeThree = temporaryNode;
+
+				delete temporaryNodeThree;
+				temporaryNode = temporaryNodeTwo->Next;
+
+				continue;
+			}
+		}
+
+		temporaryNodeTwo = temporaryNode;
+		temporaryNode = temporaryNode->Next;
+	}
+	if (counter > 0)
+	{
+		hashTable->NumberOfElements -= counter;
+
+		int report = 0;
+		return report;
+	}
+	int report = 1;
+	return report;
+}
+
+
+
+string* FindElement(HashTable* hashTable, string key)
+{
+	int hash = HashValue(key, hashTable->BufferSize);
+	HashTableListNode* temporaryNode = hashTable->HashTable[hash].Head;
+
+	while (temporaryNode != nullptr)
+	{
+		if (temporaryNode->Key == key)
+		{
+			return &temporaryNode->Value;
+			
+		}
+
+		temporaryNode = temporaryNode->Next;
+	}
+
+	
+
+	return nullptr;
+}
+
+
+int CheckCollision(HashTable* hashTable, string key, string value)
+{
+	int hash = HashValue(key, hashTable->BufferSize);
+	int counter = 0;
+
+	if (hashTable->HashTable[hash].Head == nullptr)
+	{
+		return 0;
+	}
+
+	if (hashTable->HashTable[hash].Head != nullptr)
+	{
+		HashTableListNode* temporaryNode = hashTable->HashTable[hash].Head;
+		while (temporaryNode != nullptr)
+		{
+			temporaryNode = temporaryNode->Next;
+			counter = counter + 1;
+		}
+	}
+
+	if (counter > 0)
+	{
+		return 2;
+	}
+	return 0;
+}
+
+
+
+
+void Rehashing(HashTable* hashTable)
+{
+	HashTable* hashTableTwo = new HashTable();
+	int size = int(hashTable->BufferSize * hashTable->GrowFactor);
+	hashTableTwo->HashTable = new HashTableList[size];
+	hashTableTwo->BufferSize = size;
+	hashTableTwo->NumberOfElements = 0;
+	for (int i = 0; i < hashTable->BufferSize; i++)
+	{
+		HashTableListNode* temporaryNode = hashTable->HashTable[i].Head;
+		while (temporaryNode != nullptr)
+		{						
+			AddElement(hashTableTwo, temporaryNode->Value, temporaryNode->Key);
+			temporaryNode = temporaryNode->Next;
+		}
+	}
+	delete[] hashTable->HashTable;
+	hashTable->HashTable = hashTableTwo->HashTable;
+	hashTable->NumberOfElements = hashTableTwo->NumberOfElements;
+	hashTable->BufferSize = hashTableTwo->BufferSize;
+	delete hashTableTwo;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Dictionary.cpp
+__________________________________________________________
+#include "Dictionary.h"
+
+
+
+int SearchDubles(HashTable* dictionary, string key, string element, int hash)
+{
+	HashTableListNode* temporaryNode = dictionary->HashTable[hash].Head;
+	while (temporaryNode != nullptr)
+	{
+		if ((temporaryNode->Key == key) && (temporaryNode->Value == element))
+		{
+			return 1;
+		}
+		temporaryNode = temporaryNode->Next;
+	}
+	return 0;
+}

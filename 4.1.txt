@@ -1,0 +1,288 @@
+#include <iostream>
+#include "Stack.h"
+using namespace std;
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+
+    Stack* stack = new Stack();
+
+       int komanda;
+    
+
+    do
+    {
+        cout << "\nДоступные функции: \n";
+        cout << "1 - Функция создания стека \n";
+        cout << "2 - Помещение элемента в стек \n";
+        cout << "3 - Извлечение элемента из стека \n";
+        cout << "4 - Удаление стека \n";
+        cout << "5 - Изменение размера буфера \n";
+        cout << "0 - Завершение работы программы \n";
+        cin >> komanda;
+
+        switch (komanda)
+        {
+            case 1:
+            {
+                cout << "Ввод длины стека: \n";
+                int dlina;
+                cin >> dlina;
+
+                stack->Stack = new int[8];
+                stack->Capacity = 8;
+                stack->Lenght = 0;
+
+                Inicializaciya(*stack, dlina);
+                break;
+            }
+            case 2:
+            {
+                cout << "Введите элемент: \n";
+                int element;
+                cin >> element;
+                if (stack->Capacity > stack->Lenght)
+                {
+                    DobavlenieElementa(*stack, element);
+                }
+                else
+                {
+                    cout << "Стек переполнен. Размер буфера: " << stack->Capacity;
+                    cout << "\nВведите [1], чтобы увеличить автоматически \n ";
+                    cout << "или любую другую цифру для продолжения.\n";
+                    int comandaOne;
+                    cin >> comandaOne;
+                    if (comandaOne == 1)
+                    {
+                        Proverka(*stack);
+                        DobavlenieElementa(*stack, element);
+                    }
+                    else
+                    {
+                        cout << "Добавление элемента невозможно. Операция отменена.";
+                    }
+                }
+                break;
+            }case 3:
+            {
+                 int value = IzvlechenieeElementa(*stack);
+                cout << "Элемент: " << value << "\n";
+
+                break;
+            }
+            case 4:
+            {
+                UdalenieStecka(*stack);
+                break;
+            }
+            case 5:
+            {
+                cout << "Введите размер буфера: \n";
+                int element;
+                cin >> element;
+
+                NewBufferSize(*stack, element);
+                break;
+            }
+            
+        }      
+    } while (komanda != 0);
+
+   
+    
+    UdalenieStecka(*stack);
+    delete stack;
+    return 0;
+}
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Stack.h
+________________________________________________________
+#pragma once
+/// <summary>
+/// Структура содержит указатель на стек, его длину, ёмкость,
+/// и фактор раста
+/// </summary>
+struct Stack
+{
+    /// <summary>
+    /// Стек
+    /// </summary>
+    int* Stack;
+    /// <summary>
+    /// Длина
+    /// </summary>
+    int Lenght;
+    /// <summary>
+    /// Ёмкость
+    /// </summary>
+    int Capacity;
+    /// <summary>
+    /// Фактор роста
+    /// </summary>
+    const int GrowthFactor = 2;
+};
+
+
+/// <summary>
+/// Это прграмма проверки переполнения и пересоздания длины стека
+/// </summary>
+/// <param name="steck">Принятый стек</param>
+void Proverka(Stack& stack);
+
+/// <summary>
+/// Эта программа инициализации стека
+/// </summary>
+/// <param name="steck">Принятый стек</param>
+/// <param name="dlina">Принятая длина</param>
+void Inicializaciya(Stack& stack, int dlina);
+
+/// <summary>
+/// Эта программа добавляет элемент
+/// </summary>
+/// <param name="steck">Принятый стек</param>
+/// <param name="element">Принятый элемент</param>
+void DobavlenieElementa(Stack& stack, int element);
+
+/// <summary>
+/// эта программа извлекает элемент
+/// </summary>
+/// <param name="steck">Принятый стек</param>
+/// <returns>Возвращаемый элемент</returns>
+int IzvlechenieeElementa(Stack& stack);
+
+/// <summary>
+/// Эта программа удаляет стек
+/// </summary>
+/// <param name="steck">Принятый стек</param>
+void UdalenieStecka(Stack& stack);
+
+/// <summary>
+/// Эта программа задаёт новый размер буфера
+/// </summary>
+/// <param name="steck">Принятый стек</param>
+/// <param name="razmer">Принятый размер</param>
+void NewBufferSize(Stack& stack, int razmer);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Stack.cpp
+________________________________________________
+#include <iostream>
+#include "Stack.h"
+using namespace std;
+
+
+
+void Proverka(Stack& stack)
+{
+    if (stack.Capacity <= stack.Lenght)
+    {
+        int* temporarySteck = new int[stack.Capacity * stack.GrowthFactor];
+        for (int i = 0; i < stack.Lenght; i++)
+        {
+            temporarySteck[i] = stack.Stack[i];
+        }
+        delete[] stack.Stack;
+        stack.Stack = temporarySteck;
+    }
+
+}
+
+
+void Inicializaciya(Stack& stack, int dlina)
+{
+
+    int* temporarySteck = new int[dlina * stack.GrowthFactor];
+    stack.Stack = temporarySteck;
+
+    for (int i = 0; i < dlina; i++)
+    {
+        int element;
+        cout << "Введите элемент " << i << " : \n";
+        cin >> element;
+        stack.Stack[stack.Lenght] = element;
+        stack.Lenght = stack.Lenght + 1;
+    }
+}
+
+
+
+void DobavlenieElementa(Stack& stack, int element)
+{
+    stack.Stack[stack.Lenght] = element;
+    stack.Lenght = stack.Lenght + 1;
+}
+
+
+int IzvlechenieeElementa(Stack& stack)
+{
+    int value = stack.Stack[stack.Lenght - 1];
+    stack.Lenght = stack.Lenght - 1;
+    return value;
+}
+
+
+void UdalenieStecka(Stack& stack)
+{
+    delete[] stack.Stack;
+    stack.Lenght = 0;
+    stack.Capacity = 0;
+}
+
+
+void NewBufferSize(Stack& stack, int razmer)
+{
+    stack.Capacity = razmer;
+    if (stack.Lenght > stack.Capacity)
+    {
+        stack.Lenght = stack.Capacity;
+    }
+}

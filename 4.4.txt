@@ -1,0 +1,304 @@
+#include <iostream>
+#include "Queuer.h"
+using namespace std;
+
+
+
+
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+
+    Queue* queue = new Queue();
+    queue->StackIn = new Stack();
+    queue->StackOut = new Stack(); 
+    int komanda;
+    queue->StackOut->Lenght = 0;
+    do
+    {
+        cout << "\nДоступные функции: \n";
+        cout << "1 - Созание очереди \n";
+        cout << "2 - Добавление элемента \n";
+        cout << "3 - Извлечение элемента \n";
+        cout << "4 - Удаление очереди \n";
+        cout << "0 - Завершение работы программы \n";
+
+        cin >> komanda;
+
+        switch (komanda)
+        {
+        case 1:
+        {
+
+            cout << "Ввод длины очереди: \n";
+            int dlina;
+            cin >> dlina;
+
+            queue->StackIn->Stack = new int[8];
+            queue->StackIn->Capacity = 8;
+            queue->StackIn->Lenght = 0;
+
+            Inicializaciya(*queue->StackIn, dlina);
+
+            break;
+        }
+        case 2:
+        {
+            cout << "Введите элемент: \n";
+            int element;
+            cin >> element;
+            if (queue->StackIn->Capacity > queue->StackIn->Lenght)
+            {
+                DobavlenieElementa(*queue->StackIn, element);
+            }
+            else
+            {
+                Proverka(*queue->StackIn);
+                DobavlenieElementa(*queue->StackIn, element);
+            }
+
+            break;
+        }
+        case 3:
+        {
+            Izvlechenie(*queue->StackIn, *queue->StackOut);
+            if (queue->StackOut->Lenght != 0)
+            {
+                int value = IzvlechenieeElementa(*queue->StackOut);
+                cout << "Значение: " << value;
+            }
+
+            break;
+        }
+
+        case 4:
+        {
+            if (queue->StackIn->Lenght != 0)
+            {
+                UdalenieStecka(*queue->StackIn);
+            }
+            if (queue->StackOut->Lenght != 0)
+            {
+                UdalenieStecka(*queue->StackOut);
+            }
+
+            break;
+        }
+
+        }
+ //Вывод двух стеков и их размеров.
+        cout << "\nOut\n";
+        for (int i = 0; i < queue->StackOut->Lenght; i++)
+        {
+            cout  << queue->StackOut->Stack[i] << " ";
+        }
+        cout << "\nIn\n";
+        for (int i = 0; i < queue->StackIn->Lenght; i++)
+        {
+            cout  << queue->StackIn->Stack[i] << " ";
+        }
+        cout << queue->StackIn->Lenght << " " << queue->StackOut->Lenght;
+//
+
+    } while (komanda != 0);
+
+    if (queue->StackIn->Lenght != 0)
+    {
+        UdalenieStecka(*queue->StackIn);
+    }
+    if (queue->StackOut->Lenght != 0)
+    {
+        UdalenieStecka(*queue->StackOut);
+    }
+        return 0;
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Queuer.h
+__________________________________________
+#pragma once
+/// <summary>
+/// Эта структура содержит указатель на стек, его длину,
+/// ёмкость и фактор роста
+/// </summary>
+struct Stack
+{
+    /// <summary>
+    /// Стек
+    /// </summary>
+    int* Stack;
+    /// <summary>
+    /// Длина
+    /// </summary>
+    int Lenght = 0;
+    /// <summary>
+    /// Ёмкость
+    /// </summary>
+    int Capacity;
+    /// <summary>
+    /// Фактор роста
+    /// </summary>
+    const int GrowthFactor = 2;
+};
+
+/// <summary>
+/// Очередь
+/// </summary>
+struct Queue
+{
+    /// <summary>
+    /// Стек входных данных
+    /// </summary>
+    Stack* StackIn;
+    /// <summary>
+    /// Стек выходных данных
+    /// </summary>
+    Stack* StackOut;
+};
+
+/// <summary>
+/// Это программа проверки переполнения стека и изменения его размера
+/// </summary>
+/// <param name="Steck">Принятый стек</param>
+void Proverka(Stack& stack);
+/// <summary>
+/// Это прорамма инициализации стека
+/// </summary>
+/// <param name="Steck">Принятый стек</param>
+/// <param name="dlina">Принятая длина</param>
+void Inicializaciya(Stack& stack, int dlina);
+/// <summary>
+/// Это программа добавления элемента
+/// </summary>
+/// <param name="Steck">Принятый стек</param>
+/// <param name="element">Принятый элемент</param>
+void DobavlenieElementa(Stack& stack, int element);
+/// <summary>
+/// Это программа извлечения элемента
+/// </summary>
+/// <param name="Steck">Принятый стек</param>
+/// <returns>Извлекаемый элемент</returns>
+int IzvlechenieeElementa(Stack& stack);
+/// <summary>
+/// Это программа удаления стека
+/// </summary>
+/// <param name="Steck">Принятый стек</param>
+void UdalenieStecka(Stack& stack);
+
+/// <summary>
+/// Это программа извлечения
+/// </summary>
+/// <param name="Steck">Принятый стек входа</param>
+/// <param name="Steck">Принятый стек выхода</param>
+void Izvlechenie(Stack& stackIn, Stack& stackOut);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Queuer.cpp
+__________________________________________
+#include <iostream>
+#include "Queuer.h"
+using namespace std;
+
+void Proverka(Stack& stack)
+{
+    while (stack.Capacity <= stack.Lenght)
+    {
+        int* temporarySteck = new int[stack.Capacity * stack.GrowthFactor];
+        for (int i = 0; i < stack.Lenght; i++)
+        {
+            temporarySteck[i] = stack.Stack[i];
+        }
+        delete[] stack.Stack;
+        stack.Stack = temporarySteck;
+    }
+
+}
+
+void Inicializaciya(Stack& stack, int dlina)
+{
+
+    int* temporarySteck = new int[dlina * stack.GrowthFactor];
+    stack.Stack = temporarySteck;
+
+    for (int i = 0; i < dlina; i++)
+    {
+        int element;
+        cout << "Введите элемент " << i << " : \n";
+        cin >> element;
+        stack.Stack[stack.Lenght] = element;
+        stack.Lenght = stack.Lenght + 1;
+    }
+}
+
+void DobavlenieElementa(Stack& stack, int element)
+{
+    stack.Stack[stack.Lenght] = element;
+    stack.Lenght = stack.Lenght + 1;
+}
+
+int IzvlechenieeElementa(Stack& stack)
+{
+    int value;
+    value = stack.Stack[stack.Lenght - 1];
+    stack.Lenght = stack.Lenght - 1;
+    return value;
+}
+
+void UdalenieStecka(Stack& stack)
+{
+    delete[] stack.Stack;
+    stack.Lenght = 0;
+    stack.Capacity = 0;
+}
+
+void Izvlechenie(Stack& stackIn, Stack& stackOut)
+{
+    if (stackOut.Lenght == 0)
+    {
+        delete stackOut.Stack;
+        stackOut.Stack = new int[stackIn.Lenght];
+        stackOut.Capacity = stackIn.Lenght;
+        int size = stackIn.Lenght;
+        for (int i = 0; i < size; i++)
+        {
+            int valueToOut = IzvlechenieeElementa(stackIn);
+            DobavlenieElementa(stackOut, valueToOut);
+        }
+    }
+}

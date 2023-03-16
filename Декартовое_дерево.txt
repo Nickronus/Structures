@@ -1,0 +1,654 @@
+#include <queue>
+#include <iostream>
+#include <string>
+#include "DekartTree.h"
+
+
+using namespace std;
+
+
+void Print(DekartTreeNode* node, int counter)
+{
+    if (node != nullptr)
+    {
+        Print(node->Right, counter + 1);
+        cout << string(counter, '\t') << node->Data <<"|"<<node->Priority<< endl;
+        Print(node->Left, counter + 1);
+    }
+    else
+    {
+        cout << string(counter, '\t') << '_' << endl;
+    }  
+}
+
+
+           
+
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+    DekartTree* dekartTree = new DekartTree();    
+
+    int comanda;
+    
+    do
+    {
+        //TODO: rsdn
+        cout << "\n\n\nДоступные комманды:\n1 - Создание дерева\n2 - Добавление элемента\n3 - Удаление элемента\n4 - Поиск элемента ";
+        cout << "\n5 - Добавление оптимизированным методом\n6 - Удаление оптимизированным методом\n0 - Завершение работы программы";
+        cout << "\n7 - Очистка памяти\n0 - Завершение работы программы\n\nВведите номер команды:";
+        cin >> comanda;
+
+        switch (comanda)
+        {
+            case 1:
+            {
+                cout << "\nВведите количество элементов: ";
+                int size;
+                cin >> size;
+
+                for (int i = 0; i < size; i++)
+                {
+                    cout << "\nВведите элемент для добавления: ";
+                    int element;
+                    cin >> element;
+                    
+                    int report = AddElement(dekartTree, element);
+                    if (report == 0)
+                    {
+                        cout << "\nДобавление успешно завершено.\n";
+                    }
+                    else
+                    {
+                        cout << "\nДобавление невозможно.\n";
+                        size += 1;
+                    }
+                }
+
+
+                int counter = 0;
+                Print(dekartTree->Root, counter);
+                break;
+            }
+            case 2:
+            {
+                cout << "\nВведите элемент для добавления: ";
+                int element;
+                cin >> element;
+                
+                int report = AddElement(dekartTree, element);
+                if (report == 0)
+                {
+                    cout << "\nДобавление завершено.\n";
+                }
+                else
+                {
+                    cout << "\nДобавление невозможно.\n";
+                }
+
+                int counter = 0;
+                Print(dekartTree->Root, counter);
+                break;
+            }
+            case 3:
+            {
+                cout << "\nВведите элемент для удаления: ";
+                int element;
+                cin >> element;
+                int report = DeleteElement(dekartTree, element);
+                if (report == 0)
+                {
+                    cout << "\nЭлемент успешно удалён";
+                }
+                else
+                {
+                    cout << "\nЭлемент не найден. Удаление невозможно.";
+                }
+
+                int counter = 0;
+                Print(dekartTree->Root, counter);
+                break;
+
+            }
+            case 4:
+            {
+                cout << "\nВведите элемент для поиска: ";
+                int element;
+                cin >> element;
+                
+                int report = Search(dekartTree, element);
+                if (report == 0)
+                {
+                    cout << "\nЭлемент найден.\n";
+                }
+                else
+                {
+                    cout << "\nЭлемент не найден.\n";
+                }
+
+                int counter = 0;
+                Print(dekartTree->Root, counter);
+                break;
+            }
+            case 5:
+            {
+                cout << "\nВведите элемент для оптимизированного добавления: ";
+                int element;
+                cin >> element;
+                
+                int report = AddElementOptimized(dekartTree, element);
+                if (report == 0)
+                {
+                    cout << "\nДобавление завершено.\n";
+                }
+                else
+                {
+                    cout << "\nДобавление невозможно.\n";
+                }
+
+                int counter = 0;
+                Print(dekartTree->Root, counter);
+                break;
+            }
+            case 6:
+            {
+                cout << "\nВведите элемент для оптимизированного удаления: ";
+                int element;
+                cin >> element;
+                int report = DeleteElementOptimized(dekartTree, element);
+                if (report == 0)
+                {
+                    cout << "\nЭлемент успешно удалён";
+                }
+                else
+                {
+                    cout << "\nЭлемент не найден. Удаление невозможно.";
+                }
+
+                int counter = 0;
+                Print(dekartTree->Root, counter);
+                break;
+            }
+            case 7:
+            {
+                int report = DeleteTree(dekartTree);
+                if (report == 0)
+                {
+                    cout << "\nОчистка завершена успешно.";
+                }
+                else
+                {
+                    cout << "\nОшибка. Очистка невозможна.";
+                }
+                break;
+            }
+        }
+    } while (comanda != 0);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DekartTree.h
+______________________________________________________
+#pragma once
+
+/// <summary>
+/// Структура элемента дерева
+/// </summary>
+struct DekartTreeNode
+{
+	/// <summary>
+	/// Данные (ключ)
+	/// </summary>
+	int Data;
+	/// <summary>
+	/// Приоритет
+	/// </summary>
+	int Priority;
+	/// <summary>
+	/// Указатель на левый элемент
+	/// </summary>
+	DekartTreeNode* Left = nullptr;
+	/// <summary>
+	/// Указатель на правый элемент
+	/// </summary>
+	DekartTreeNode* Right = nullptr;
+
+};
+
+/// <summary>
+/// Структура дерева
+/// </summary>
+struct DekartTree
+{
+	/// <summary>
+	/// Указатель на корень
+	/// </summary>
+	DekartTreeNode* Root = nullptr;
+	/// <summary>
+	/// Количество элементов
+	/// </summary>
+	int Size = 0;
+};
+
+/// <summary>
+/// Функция разрезания
+/// </summary>
+/// <param name="dekartTreeNode">корневой элемент</param>
+/// <param name="rightDekartTreeNode">корневой элемент левого дерева</param>
+/// <param name="leftDekartTreeNode">корневой элемент правого дерева</param>
+/// <param name="key">ключ</param>
+//TODO: зачем ссылка на указатель?
+void Split(DekartTreeNode* dekartTreeNode, DekartTreeNode*& leftDekartTreeNode, DekartTreeNode*& rightDekartTreeNode, int key);
+/// <summary>
+/// Функция слияния
+/// </summary>
+/// <param name="dekartDekartTreeNode">корневой элемент</param>
+/// <param name="secondaryDekartTreepNode">корневой элемент вторичного дерева</param>
+/// <returns>Корневой элемент слитого дерева</returns>
+DekartTreeNode* Merge(DekartTreeNode* dekartDekartTreeNode, DekartTreeNode* secondaryDekartTreepNode);
+/// <summary>
+/// Функция добавления элемента
+/// </summary>
+/// <param name="dekartTree">дерево</param>
+/// <param name="element">ключ</param>
+/// <returns>отчёт</returns>
+int AddElement(DekartTree* dekartTree, int element);
+/// <summary>
+/// Функция оптимизированного добавления элемента
+/// </summary>
+/// <param name="dekartTree">дерево</param>
+/// <param name="element">ключ</param>
+/// <returns>отчёт</returns>
+int AddElementOptimized(DekartTree* dekartTree, int key);
+/// <summary>
+/// Функция удаления элемента
+/// </summary>
+/// <param name="dekartTree">дерево</param>
+/// <param name="element">ключ</param>
+/// <returns>отчёт</returns>
+int DeleteElement(DekartTree* dekartTree, int key);
+/// <summary>
+/// Функция оптимизированного удаления элемента
+/// </summary>
+/// <param name="dekartTree">дерево</param>
+/// <param name="element">ключ</param>
+/// <returns>отчёт</returns>
+int DeleteElementOptimized(DekartTree* dekartTree, int key);
+/// <summary>
+/// Функция поиска элемента
+/// </summary>
+/// <param name="dekartTree">дерево</param>
+/// <param name="element">ключ</param>
+/// <returns>отчёт</returns>
+int Search(DekartTree* dekartTree, int element);
+/// <summary>
+/// Функция очистки
+/// </summary>
+/// <param name="dekartTree">дерево</param>
+/// <returns>отчёт</returns>
+int DeleteTree(DekartTree* dekartTree);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DekartTree.cpp
+___________________________________________________________
+#include "DekartTree.h"
+#include <iostream>
+
+
+using namespace std;
+
+
+
+void Split(DekartTreeNode* dekartTreeNode, DekartTreeNode*& leftDekartTreeNode, DekartTreeNode*& rightDekartTreeNode, int key)
+{
+	if (dekartTreeNode == nullptr)
+	{
+		leftDekartTreeNode = nullptr;
+		rightDekartTreeNode = nullptr;
+		return;
+	}
+	if (dekartTreeNode->Data < key)
+	{
+		Split(dekartTreeNode->Right, dekartTreeNode->Right, rightDekartTreeNode, key);
+		leftDekartTreeNode = dekartTreeNode;
+	}
+	else
+	{
+		Split(dekartTreeNode->Left, leftDekartTreeNode, dekartTreeNode->Left, key);
+		rightDekartTreeNode = dekartTreeNode;
+	}
+}
+
+
+DekartTreeNode* Merge(DekartTreeNode* dekartDekartTreeNode, DekartTreeNode* secondaryDekartTreepNode)
+{
+	if (dekartDekartTreeNode == nullptr || secondaryDekartTreepNode == nullptr)
+	{
+		return dekartDekartTreeNode ? dekartDekartTreeNode : secondaryDekartTreepNode;
+	}
+	if (dekartDekartTreeNode->Priority > secondaryDekartTreepNode->Priority)
+	{
+		dekartDekartTreeNode->Right = Merge(dekartDekartTreeNode->Right, secondaryDekartTreepNode);
+		return dekartDekartTreeNode;
+	}
+	else
+	{
+		secondaryDekartTreepNode->Left = Merge(dekartDekartTreeNode, secondaryDekartTreepNode->Left);
+		return secondaryDekartTreepNode;
+	}
+}
+
+int AddElement(DekartTree* dekartTree, int key)
+{
+	
+	srand(time(nullptr));
+	if (dekartTree->Root == nullptr)
+	{
+		DekartTreeNode* newNode = new DekartTreeNode();
+		newNode->Data = key;
+		newNode->Priority = rand() % 100;
+
+		dekartTree->Root = newNode;
+		dekartTree->Size += 1;
+		return 0;
+	}
+	else
+	{
+		if (Search(dekartTree, key) == 1)
+		{
+			DekartTreeNode* leftDekartTreeNode = new DekartTreeNode();
+			DekartTreeNode* rightDekartTreeNode = new DekartTreeNode();
+
+			Split(dekartTree->Root, leftDekartTreeNode, rightDekartTreeNode, key);
+
+			DekartTreeNode* newNode = new DekartTreeNode;
+			newNode->Data = key;
+			newNode->Priority = rand() % 100;
+
+			dekartTree->Root = Merge(leftDekartTreeNode, newNode);
+			dekartTree->Root = Merge(dekartTree->Root, rightDekartTreeNode);
+			return 0;
+		}
+		else
+		{
+			return 1;
+		}
+	}
+}
+
+int AddElementOptimized(DekartTree* dekartTree, int key)
+{
+
+	srand(time(nullptr));
+	if (dekartTree->Root == nullptr)
+	{
+		DekartTreeNode* newNode = new DekartTreeNode();
+		newNode->Data = key;
+		newNode->Priority = rand() % 100;
+
+		dekartTree->Root = newNode;
+		dekartTree->Size += 1;
+		return 0;
+	}
+	
+	int report = Search(dekartTree, key);
+	if (report == 0)
+	{
+		return 1;
+	}
+
+		DekartTreeNode* newNode = new DekartTreeNode();
+		newNode->Data = key;
+		newNode->Priority = rand() % 100;
+
+		DekartTreeNode* comparisonNode = new DekartTreeNode();
+		comparisonNode = dekartTree->Root;
+		DekartTreeNode* comparisonNodeToo = new DekartTreeNode();
+		comparisonNodeToo = dekartTree->Root;
+		while (comparisonNode != nullptr)
+		{
+			if (comparisonNode->Priority < newNode->Priority)
+			{
+				break;
+			}
+			comparisonNodeToo = comparisonNode;
+			if (comparisonNode->Data > key)
+			{
+				comparisonNode = comparisonNode->Left;
+			}
+			else
+			{
+				comparisonNode = comparisonNode->Right;
+			}
+		}
+		
+		DekartTreeNode* leftDekartTreeNode = new DekartTreeNode();
+		DekartTreeNode* rightDekartTreeNode = new DekartTreeNode();
+
+		Split(comparisonNode, leftDekartTreeNode, rightDekartTreeNode, key);
+
+		newNode->Left = leftDekartTreeNode;
+		newNode->Right = rightDekartTreeNode;
+		if (comparisonNodeToo == dekartTree->Root)
+		{
+			dekartTree->Root = newNode;
+		}
+		else
+		{
+			if (comparisonNodeToo->Data > newNode->Data)
+			{
+				comparisonNodeToo->Left = newNode;
+			}
+			else
+			{
+				comparisonNodeToo->Right = newNode;
+			}
+		}
+	
+
+		return 0;
+	
+	
+	
+}
+
+int DeleteElement(DekartTree* dekartTree, int key)
+{
+	
+	int report = Search(dekartTree, key);
+	if (report == 1)
+	{
+		return 1;
+	}
+	DekartTreeNode* leftDekartTreeNode = new DekartTreeNode();
+	DekartTreeNode* rightDekartTreeNode = new DekartTreeNode();
+	Split(dekartTree->Root, leftDekartTreeNode, rightDekartTreeNode, key);
+
+	DekartTreeNode* equalDekartTreeNode = new DekartTreeNode();
+	Split(rightDekartTreeNode, equalDekartTreeNode, rightDekartTreeNode, key + 1);
+
+	dekartTree->Root = Merge(leftDekartTreeNode, rightDekartTreeNode);
+	
+	return 0;
+}
+
+int DeleteElementOptimized(DekartTree* dekartTree, int key)
+{
+	
+	int report = Search(dekartTree, key);
+	if (report == 1)
+	{
+		return 1;
+	}
+
+	DekartTreeNode* comparisonNode = new DekartTreeNode();
+	comparisonNode = dekartTree->Root;
+	DekartTreeNode* comparisonNodeToo = new DekartTreeNode();
+	comparisonNodeToo = dekartTree->Root;
+
+	if (comparisonNode->Data == key)
+	{
+		DekartTreeNode* ourNode = new DekartTreeNode();
+		ourNode = dekartTree->Root;
+		dekartTree->Root = Merge(comparisonNode->Left, comparisonNode->Right);
+		delete ourNode;
+		return 0;
+	}
+
+	int leftOrRight = 0;
+	while (comparisonNode->Data != key)
+	{
+		comparisonNodeToo = comparisonNode;
+		if (comparisonNode->Data > key)
+		{
+			comparisonNode = comparisonNode->Left;
+			leftOrRight = 0;
+		}
+		else
+		{
+			comparisonNode = comparisonNode->Right;
+			leftOrRight = 1;
+		}
+
+	}
+	comparisonNode = comparisonNodeToo;
+
+	if (leftOrRight = 0)
+	{
+		if ((comparisonNode->Left->Left == nullptr) || (comparisonNode->Left->Right == nullptr))
+		{
+			if ((comparisonNode->Left->Left == nullptr) && (comparisonNode->Left->Right == nullptr))
+			{
+				DekartTreeNode* ourNode = new DekartTreeNode();
+				ourNode = comparisonNode->Left;
+				comparisonNode->Left = ourNode;
+				delete ourNode;
+				comparisonNode->Left = nullptr;
+				return 0;
+			}
+			if (comparisonNode->Left->Left == nullptr)
+			{
+				comparisonNode->Left = comparisonNode->Left->Right;
+			}
+			if (comparisonNode->Left->Right == nullptr)
+			{
+				comparisonNode->Left = comparisonNode->Left->Left;
+			}
+		}
+		DekartTreeNode* newNode = new DekartTreeNode();
+		newNode = Merge(comparisonNode->Left->Left, comparisonNode->Left->Right);
+		DekartTreeNode* ourNode = new DekartTreeNode();
+		ourNode = comparisonNode->Left;
+		comparisonNode->Left = newNode;
+		delete ourNode;
+		return 0;
+	}
+	else
+	{
+		if ((comparisonNode->Right->Left == nullptr) || (comparisonNode->Right->Right == nullptr))
+		{
+			if ((comparisonNode->Right->Left == nullptr) && (comparisonNode->Right->Right == nullptr))
+			{
+				DekartTreeNode* ourNode = new DekartTreeNode();
+				ourNode = comparisonNode->Right;
+				comparisonNode->Right = ourNode;
+				delete ourNode;
+				comparisonNode->Right = nullptr;
+				return 0;
+			}
+			if (comparisonNode->Right->Left == nullptr)
+			{
+				comparisonNode->Right = comparisonNode->Right->Right;
+			}
+			if (comparisonNode->Right->Right == nullptr)
+			{
+				comparisonNode->Right = comparisonNode->Right->Left;
+			}
+		}
+		DekartTreeNode* newNode = new DekartTreeNode();
+		newNode = Merge(comparisonNode->Right->Left, comparisonNode->Right->Right);
+		DekartTreeNode* ourNode = new DekartTreeNode();
+		ourNode = comparisonNode->Right;
+		comparisonNode->Right = newNode;
+		delete ourNode;
+		return 0;
+	}
+
+
+	return 1;
+}
+
+int Search(DekartTree* dekartTree, int element)
+{
+	DekartTreeNode* comparisonNode = new DekartTreeNode();
+	comparisonNode = dekartTree->Root;
+
+	while (comparisonNode != nullptr)
+	{
+		if (comparisonNode->Data == element)
+		{
+			return 0;
+		}
+		if (element < comparisonNode->Data)
+		{
+			comparisonNode = comparisonNode->Left;
+		}
+		else
+		{
+			comparisonNode = comparisonNode->Right;
+		}
+	}
+	return 1;
+}
+
+int DeleteTree(DekartTree* dekartTree)
+{
+	if (dekartTree->Root == nullptr)
+	{
+		return 1;
+	}
+	while (dekartTree->Root != nullptr)
+	{
+		DeleteElementOptimized(dekartTree, dekartTree->Root->Data);
+	}
+	return 0;
+}
+
+
+
+
+
+

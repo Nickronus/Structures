@@ -1,0 +1,478 @@
+#include <iostream>
+#include<ctime>
+#include "List.h"
+using namespace std;
+
+/// <summary>
+/// Эта программа ввода элемента
+/// </summary>
+/// <param name="list">Переданный список</param>
+/// <param name="size">Количество элементов</param>
+void VvodElementa(List* list, int size)
+{
+	for (int i = 0; i < size; i++)
+	{
+		setlocale(LC_ALL, "Russian");
+		cout << "Введите элемент [" << i << "]: ";
+		int element;
+		cin >> element;
+		DobavlenieElementa(list, element);
+	}
+}
+
+/// <summary>
+/// Эта программа выводит список
+/// </summary>
+/// <param name="list">Переданный список</param>
+void VivodSpiska(List* list)
+{
+	setlocale(LC_ALL, "Russian");
+	Node* temporary = list->Head;
+	int counter = 0;
+	while (temporary != nullptr)
+	{
+		cout << "Элемент [" << counter << "]: " << temporary->Data << endl;
+		counter += 1;
+		temporary = temporary->Next;
+	}
+}
+
+/// <summary>
+/// Эта программа осуществляет линейный поиск элемента в списке
+/// </summary>
+/// <param name="list">Переданный список</param>
+/// <param name="element">Искомый элемент</param>
+void LineyniyPoisk(List* list, int element)
+{
+
+	int count = 0;
+	int index = 0;
+	Node* current = list->Head;
+	while (current != nullptr)
+	{
+		if (current->Data == element)
+		{
+			cout << "\nИндекс элемента: " << index;
+			count = count + 1;
+		}
+		current = current->Next;
+		index = index + 1;
+	}
+	if (count == 0)
+	{
+		cout << "\nДанного элемента нет в списке\n";
+	}
+}
+
+int main()
+{
+	clock_t t0, t1;
+
+	int komanda = 0;
+	setlocale(LC_ALL, "Russian");
+	List* list = new List();
+	while (komanda != 11)
+	{
+		cout << "Доступные функции:\n1 - Создание списка\n2 - Добавление элемента\n";
+		cout << "3 - Удаление элемента\n4 - Вставка в начало\n";
+		cout << "5 - Вставка в конец\n6 - Вставка после элемента\n";
+		cout << "7 - Вставка перед элементом\n8 - Сортировка\n";
+		cout << "9 - Линейный поиск элемента\n";
+		cout << "10 - Вывод списка\n11 - Завершение работы программы\n";
+
+		cout << "Введите номер команды: ";
+		cin >> komanda;
+		switch (komanda)
+
+		{
+			case 1:
+			{
+				cout << "Введите количество элементов:" << endl;
+				int sizeList = 0;
+				cin >> sizeList;
+				SozdanieSpiska(list);
+				VvodElementa(list, sizeList);
+				VivodSpiska(list);
+				break;
+			}
+			case 2:
+			{
+				cout << "Введите элемент: ";
+				int element = 0;
+				cin >> element;
+				DobavlenieElementa(list, element);
+				VivodSpiska(list);
+				break;
+			}
+			case 3:
+			{
+				cout << "Введите индекс элемента: ";
+				int index = 0;
+				cin >> index;
+				Udalenie(list, index);
+				VivodSpiska(list);
+				break;
+			}
+			case 4:
+			{
+				cout << "Введите элемент: ";
+				int element = 0;
+				cin >> element;
+				VstavkaVNachalo(list, element);
+				VivodSpiska(list);
+				break;
+			}
+			case 5:
+			{
+				cout << "Введите элемент: ";
+				int element = 0;
+				cin >> element;
+				VstavkaVKonec(list, element);
+				VivodSpiska(list);
+				break;
+			}
+			case 6:
+			{
+				cout << "Введите индекс элемента: ";
+				int index = 0;
+				cin >> index;
+				cout << "Введите элемент: ";
+				int element = 0;
+				cin >> element;
+				VstavkaPosle(list, index, element);
+				VivodSpiska(list);
+				break;
+			}
+			case 7:
+			{
+				cout << "Введите индекс элемента: ";
+				int index = 0;
+				cin >> index;
+				cout << "Введите элемент: ";
+				int element = 0;
+				cin >> element;
+				VstavkaPeredElementom(list, index, element);
+				VivodSpiska(list);
+				break;
+			}
+			case 8:
+			{
+				t0 = clock();
+				Sorting(list);
+				t1 = clock();
+				VivodSpiska(list);
+
+				cout << ((float)(t1 - t0)) / CLOCKS_PER_SEC << "Сек.";
+
+				break;
+			}
+			case 9:
+			{
+				cout << "Введите элемент: ";
+				int element = 0;
+				cin >> element;
+				LineyniyPoisk(list, element);
+				break;
+			}
+			case 10:
+			{
+				VivodSpiska(list);
+			}
+
+		}
+	}
+	return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ФАИЛ List.h
+____________________________________________
+#pragma once
+
+
+/// <summary>
+/// Это структура, содержащая данные и указатели на следующий и предыдущий элементы
+/// </summary>
+struct Node
+{
+	int Data = 0;
+	Node* Next = nullptr;
+	Node* Prev = nullptr;
+};
+
+/// <summary>
+/// Это структура, содержащая указатели на первый и последний элеметы
+/// </summary>
+struct List
+{
+	Node* Head = nullptr;
+	Node* Tail = nullptr;
+};
+
+/// <summary>
+/// Эта программа добавляет элемент в список
+/// </summary>
+/// <param name="list">Переданный список</param>
+/// <param name="data">Переданные данные</param>
+void DobavlenieElementa(List* list, int data);
+/// <summary>
+/// Эта программа создаёт список
+/// </summary>
+/// <param name="list">Переданный список</param>
+void SozdanieSpiska(List* list);
+/// <summary>
+/// Эта программа вставляет данные после указанного элемента
+/// </summary>
+/// <param name="list">Переданный список</param>
+/// <param name="index">Индекс элемента, после которого вставляется элемент</param>
+/// <param name="data">Это данные для вставки</param>
+void VstavkaPosle(List* list, int index, int data);
+/// <summary>
+/// "Эта программа удаляет элемент
+/// </summary>
+/// <param name="node">Переданный элемент</param>
+void UdalenieElementa(Node* node);
+/// <summary>
+/// Эта программа удаляет элемент
+/// </summary>
+/// <param name="list">>Переданный список</param>
+/// <param name="index">Индекс удаляемого элемента</param>
+void Udalenie(List* list, int index);
+/// <summary>
+/// Эта программа вставляет данные в начало
+/// </summary>
+/// <param name="list">Переданный список</param>
+/// <param name="data">Это данные для вставки</param>
+void VstavkaVNachalo(List* list, int data);
+/// <summary>
+/// Эта программа вставляет данные в конец
+/// </summary>
+/// <param name="list">Переданный список</param>
+/// <param name="data">Это данные для вставки</param>
+void VstavkaVKonec(List* list, int data);
+/// <summary>
+/// Эта программа вставляет данные перед указанным элементом
+/// </summary>
+/// <param name="list">Переданный список</param>
+/// <param name="index">Индекс элемента, перед которым вставляется элемент</param>
+/// <param name="data">Это данные для вставки</param>
+void VstavkaPeredElementom(List* list, int index, int data);
+/// <summary>
+/// Данная программа сортирует список
+/// </summary>
+/// <param name="list">Переданный список</param>
+void Sorting(List* list);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Фаил List.cpp
+_________________________________________________
+#include <iostream>
+#include "List.h"
+
+using namespace std;
+
+
+void DobavlenieElementa(List* list, int data)
+{
+	Node* newNode = new Node();
+	newNode->Data = data;
+	if (list->Head == nullptr)
+	{
+		list->Head = newNode;
+		list->Tail = newNode;
+	}
+	else
+	{
+		newNode->Prev = list->Tail;
+		list->Tail->Next = newNode;
+		list->Tail = newNode;
+	}
+}
+
+
+void SozdanieSpiska(List* list)
+{
+	if (list->Head != nullptr)
+	{
+
+		Node* node = list->Head;
+		while (node != nullptr)
+		{
+			if (node->Data > 0)
+			{
+				Node* temporary = node;
+				node = temporary->Next;
+
+				delete temporary;
+			}
+		}
+		list->Head = nullptr;
+		list->Tail = nullptr;
+	}	
+}
+
+
+void VstavkaPosle(List* list, int index, int data)
+{
+	Node* temporaryNode = list->Head;
+	for (int i = 0; i < index; i++)
+	{
+		temporaryNode = temporaryNode->Next;
+	}
+	Node* newNode = new Node();
+	newNode->Data = data;
+	newNode->Prev = temporaryNode;
+	newNode->Next = temporaryNode->Next;
+	newNode->Prev->Next = newNode;
+
+	if (newNode->Next != nullptr)
+	{
+		newNode->Next->Prev = newNode;
+	}
+	else
+	{
+		list->Tail = newNode;
+	}
+}
+
+
+void UdalenieElementa(Node* node)
+{
+	node->Next->Prev = node->Prev;
+	node->Prev->Next = node->Next;
+	delete node;
+}
+
+
+void Udalenie(List* list, int index)
+{
+	Node* temporaryNode = list->Head;
+	for (int i = 0; i < index; i++)
+	{
+		temporaryNode = temporaryNode->Next;
+	}
+	UdalenieElementa(temporaryNode);
+}
+
+
+void VstavkaVNachalo(List* list, int data)
+{
+	Node* newNode = new Node();
+	newNode->Data = data;
+	newNode->Next = list->Head;
+	list->Head->Prev = newNode;
+	list->Head = newNode;
+}
+
+
+void VstavkaVKonec(List* list, int data)
+{
+	Node* newNode = new Node();
+	newNode->Data = data;
+	newNode->Prev = list->Tail;
+	list->Tail->Next = newNode;
+	list->Tail = newNode;
+}
+
+
+void VstavkaPeredElementom(List* list, int index, int data)
+{
+	Node* temporaryNode = list->Head;
+	for (int i = 0; i < index; i++)
+	{
+		temporaryNode = temporaryNode->Next;
+	}
+	Node* newNode = new Node();
+	newNode->Data = data;
+	newNode->Prev = temporaryNode->Prev;
+	newNode->Next = temporaryNode;
+	newNode->Next->Prev = newNode;
+
+	if (newNode->Prev != nullptr)
+	{
+		newNode->Prev->Next = newNode;
+	}
+	else
+	{
+		list->Head = newNode;
+	}
+}
+
+
+void Sorting(List* list)
+{
+	Node* current = list->Head;
+	Node* currentTwo = list->Head;
+
+	while (currentTwo != nullptr)
+	{
+		if (current->Data < currentTwo->Data)
+		{
+			int hranilka = current->Data;
+			current->Data = currentTwo->Data;
+			currentTwo->Data = hranilka;
+		}
+		currentTwo = currentTwo->Next;
+	}
+
+	current = current->Next;
+	currentTwo = list->Head;
+
+	while (current != nullptr)
+	{
+		while (currentTwo != nullptr)
+		{
+			if ((current->Data < currentTwo->Data) 
+			&& (currentTwo->Data <= current->Prev->Data))
+			{
+				int hranilka = current->Data;
+				current->Data = currentTwo->Data;
+				currentTwo->Data = hranilka;
+			}
+			currentTwo = currentTwo->Next;
+		}
+		current = current->Next;
+		currentTwo = list->Head;
+	}
+
+}
